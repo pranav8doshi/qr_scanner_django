@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR code scanner</title>
+</head>
+<body>
+    <div id="you-qr-result"></div>
+    <h1>Scan QR</h1>
+    <div style="display: flex; justify-content: center;">
+        <div id="my-qr-reader" style="width:500px;"></div>
+    </div>
+
+    <form id="qrForm" method="POST">
+        {% csrf_token %}
+        <input type="hidden" id="qrCodeInput" name="code_data">
+    </form>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        function domReady(fn) {
+            if (document.readyState === "complete" || document.readyState === "interactive") {
+                setTimeout(fn, 1);
+            } else {
+                document.addEventListener("DOMContentLoaded", fn);
+            }
+        }
+
+        domReady(function () {
+            var lastResult, countResults = 0;
+
+            function onScanSuccess(decodedText, decodedResult) {
+                if (decodedText !== lastResult) {
+                    ++countResults;
+                    lastResult = decodedText;
+
+                    alert("Your QR is: " + decodedText); 
+
+                    document.getElementById('qrCodeInput').value = decodedText;
+                    document.getElementById('qrForm').submit();  // Submit form automatically
+                }
+            }
+
+            var htmlscanner = new Html5QrcodeScanner(
+                "my-qr-reader", { fps: 10, qrbox: 250 }
+            );
+
+            htmlscanner.render(onScanSuccess);
+        });
+    </script>
+</body>
+</html>
